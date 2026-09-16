@@ -1,1 +1,77 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 @AGENTS.md
+
+## Commands
+
+```bash
+npm run dev          # dev server (Turbopack) on http://localhost:3000
+npm run build        # production build
+npm start            # serve the production build
+npm run lint         # eslint (flat config); `next lint` was removed in Next 16
+npx tsc --noEmit     # typecheck
+npx next typegen     # regenerate PageProps/LayoutProps/RouteContext type helpers
+```
+
+No test runner is installed yet. If one is added, follow the local guides in
+`node_modules/next/dist/docs/01-app/02-guides/testing/` (vitest, jest, playwright, cypress)
+and record the single-test invocation here.
+
+## Repository state
+
+The code is still the `create-next-app` scaffold ([app/layout.tsx](app/layout.tsx),
+[app/page.tsx](app/page.tsx)). [SPEC.md](SPEC.md) is the authoritative plan for the real
+application — **Plant Watering Control**, a POC for monitoring plant moisture sensors —
+and is where design decisions live. Read the relevant SPEC.md section before building a
+feature; nothing in sections 4–31 of it exists in code yet.
+
+## Stack facts that differ from older Next.js
+
+Next.js 16.3.5 / React 19.2.4, App Router, TypeScript `strict`.
+
+- Request APIs are async-only: `await cookies()`, `await headers()`, and `await props.params` /
+  `await props.searchParams` in `page`/`layout`/`route`. Synchronous access was removed in 16.
+- Middleware is now `proxy.ts` exporting `proxy()`; node runtime only, not configurable.
+- Turbopack is the default for both dev and build.
+- `@/*` in [tsconfig.json](tsconfig.json) maps to the **repo root**, not `src/`. SPEC.md sketches a
+  `src/` layout; adopting it means updating that alias.
+- Styling is currently Tailwind v4 via `@tailwindcss/postcss` ([app/globals.css](app/globals.css)
+  uses `@import "tailwindcss"` and `@theme inline`, no `tailwind.config`). SPEC.md section 2 calls
+  for SCSS — an unresolved conflict; confirm with the user before switching.
+
+Per AGENTS.md, consult `node_modules/next/dist/docs/` (notably
+`01-app/02-guides/upgrading/version-16.md`) rather than recalling API shapes.
+
+## Intended architecture (from SPEC.md)
+
+Layering, strictly one direction — UI → route handlers → services → models:
+
+```
+app/api/**/route.ts   thin: auth check, parse, delegate, map errors
+services/             business logic; the only caller of sensor + AI layers
+models/               Mongoose schemas for app-owned collections only
+lib/db.ts             cached Mongoose connection (reused across requests)
+```
+
+Non-negotiable boundaries:
+
+- **Browser never talks to MongoDB or the AI provider.** All data access goes through the server;
+  `MONGODB_URI`, `AI_API_KEY`, and Better Auth secrets stay server-side.
+- **Better Auth owns `user`, `session`, `account`, `verification`.** No `models/User.ts`, no writes
+  to those collections, no re-implementing email/password rules. Read the current user via the
+  Better Auth session API. Extra profile fields go through `user.additionalFields`.
+- **Two clients, one pool.** The Better Auth MongoDB adapter needs a native driver `Db`; derive it
+  from the Mongoose connection (`mongoose.connection.db` / `.getClient()`) instead of opening a
+  second `MongoClient`.
+- **Ownership scoping is server-side.** Query `Controller.findOne({ _id: id, ownerId: userId })`,
+  never `findById(id)` — a user must not reach another user's controller by guessing an ID.
+- **Hardware is behind an interface.** `MoistureSensor.getReading()` with `MockMoistureSensor` as
+  the POC implementation; readings must drift realistically, not jump randomly. The mock is
+  server-side and never touches MongoDB itself — services persist its readings.
+- **AI is behind a service.** No OpenAI-specific code outside the AI provider module. Plant info is
+  cached in MongoDB and only regenerated on a miss or when `plantName` changes.
+- Refresh model is pull-only: visiting `/controllers` triggers a reading. No WebSockets/SSE/polling.
+- API errors use a single envelope: `{ "error": { "code", "message" } }` with the code list in
+  SPEC.md section 21.
