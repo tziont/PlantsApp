@@ -1,0 +1,89 @@
+@use 'mixins' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  @include z('sticky');
+  border-bottom: 1px solid var(--color-border);
+  // Translucent + blur keeps content visible behind the bar while it scrolls.
+  background: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.inner {
+  @include container;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-brand);
+  }
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: var(--text-base);
+}
+
+.brandName {
+  font-size: var(--text-sm);
+
+  @include mq('sm') {
+    font-size: var(--text-base);
+  }
+}
+
+// The word "Control" is noise on a narrow phone; the mark + "Plant Watering"
+// still identifies the app.
+.brandSuffix {
+  display: none;
+
+  @include mq('sm') {
+    display: inline;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  @include mq('md') {
+    gap: var(--space-4);
+  }
+}
+
+// Email is the least important thing in the bar -- first to go when space runs out.
+.identity {
+  display: none;
+  max-width: 18ch;
+  overflow: hidden;
+  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @include mq('md') {
+    display: block;
+    max-width: 28ch;
+  }
+}

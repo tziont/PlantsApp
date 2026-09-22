@@ -1,0 +1,14 @@
+@use 'mixins' as *;
+
+.main {
+  @include container;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--space-6);
+
+  @include mq('md') {
+    padding-block: var(--space-8);
+  }
+}

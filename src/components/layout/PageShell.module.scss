@@ -1,0 +1,60 @@
+@use 'mixins' as *;
+
+.main {
+  @include container;
+  flex: 1;
+  padding-block: var(--space-6) var(--space-8);
+
+  @include mq('md') {
+    padding-block: var(--space-7) var(--space-9);
+  }
+}
+
+// Stacks under the title on phones, sits beside it once there is room.
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+
+  @include mq('md') {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.heading {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-brand);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.description {
+  max-width: 60ch;
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+
+  @include mq('sm') {
+    font-size: var(--text-base);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
