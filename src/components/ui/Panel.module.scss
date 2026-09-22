@@ -1,0 +1,15 @@
+@use 'mixins' as *;
+
+.panel {
+  @include card;
+  padding: var(--space-5);
+
+  @include mq('md') {
+    padding: var(--space-6);
+  }
+}
+
+.title {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-3);
+}

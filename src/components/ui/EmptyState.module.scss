@@ -1,0 +1,41 @@
+@use 'mixins' as *;
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-5);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-surface) 60%, transparent);
+  text-align: center;
+
+  @include mq('md') {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-soft);
+  font-size: var(--text-xl);
+}
+
+.title {
+  font-size: var(--text-lg);
+}
+
+.body {
+  max-width: 44ch;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.action {
+  margin-top: var(--space-2);
+}

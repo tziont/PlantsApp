@@ -38,14 +38,35 @@ Next.js 16.3.5 / React 19.2.4, App Router, TypeScript `strict`.
   `await props.searchParams` in `page`/`layout`/`route`. Synchronous access was removed in 16.
 - Middleware is now `proxy.ts` exporting `proxy()`; node runtime only, not configurable.
 - Turbopack is the default for both dev and build.
-- `@/*` in [tsconfig.json](tsconfig.json) maps to the **repo root**, not `src/`. SPEC.md sketches a
+- `./src/*` in [tsconfig.json](tsconfig.json) maps to the **repo root**, not `src/`. SPEC.md sketches a
   `src/` layout; adopting it means updating that alias.
-- Styling is currently Tailwind v4 via `@tailwindcss/postcss` ([app/globals.css](app/globals.css)
-  uses `@import "tailwindcss"` and `@theme inline`, no `tailwind.config`). SPEC.md section 2 calls
-  for SCSS — an unresolved conflict; confirm with the user before switching.
+- Styling is SCSS + CSS Modules, per SPEC.md section 2. Tailwind was removed.
 
 Per AGENTS.md, consult `node_modules/next/dist/docs/` (notably
 `01-app/02-guides/upgrading/version-16.md`) rather than recalling API shapes.
+
+## Styling
+
+SCSS + CSS Modules (`sass-embedded`, configured in [next.config.ts](next.config.ts)).
+`sassOptions.loadPaths` includes `src/styles`, so any `.scss` file can `@use 'mixins' as *`
+without relative paths.
+
+- [src/styles/globals.scss](src/styles/globals.scss) — the only global stylesheet, imported once
+  by the root layout. Holds the reset, base element styles, and **all design tokens** as CSS
+  custom properties in two tiers: primitives (`--green-600`, `--sand-100`) and semantic aliases
+  (`--color-brand`, `--color-text`, `--space-4`, `--radius-md`, `--shadow-sm`). Components use the
+  semantic tier only; dark mode reassigns that tier in one block.
+- [src/styles/_tokens.scss](src/styles/_tokens.scss) — build-time-only values (breakpoint map,
+  z-layers). Anything a browser can read at runtime is a custom property instead.
+- [src/styles/_mixins.scss](src/styles/_mixins.scss) — `mq()` (mobile-first, em breakpoints),
+  `container`, `card`, `focus-ring`, `visually-hidden`, `motion-safe`.
+- Everything else is a colocated `*.module.scss`. No global class names, no hard-coded colours,
+  spacing or radii — always a token.
+- Shared primitives live in [src/components/ui/](src/components/ui/) (`Button` + `buttonClass()`
+  for link-as-button, `Panel`, `EmptyState`) and [src/components/layout/](src/components/layout/)
+  (`SiteHeader`, `SiteFooter`, `PageShell`).
+- Mobile-first: write the phone layout, then layer `@include mq('md')`. Prefer intrinsic layout
+  (`auto-fit` grids, `clamp()` type) over breakpoints where it works.
 
 ## Intended architecture (from SPEC.md)
 

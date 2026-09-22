@@ -1,0 +1,27 @@
+// Design tokens that only the *compiler* needs (breakpoints, z-layers).
+//
+// Everything a browser can consume at runtime -- colour, spacing, radii, type --
+// lives as a CSS custom property in `globals.scss` instead. Custom properties
+// cascade, respond to the dark-mode media query and are debuggable in devtools;
+// Sass variables cannot do any of that. Rule of thumb: if a media query or a
+// `@mixin` needs the value at build time it belongs here, otherwise it is a
+// custom property.
+
+// Mobile-first breakpoints. Values are `em` so they track the user's browser
+// font size rather than a hard pixel grid.
+$breakpoints: (
+  'sm': 30em,
+  // 480px  - large phones
+  'md': 48em,
+  // 768px  - tablets
+  'lg': 64em,
+  // 1024px - laptops
+  'xl': 80em,
+  // 1280px - desktops
+);
+
+$z-layers: (
+  'base': 0,
+  'sticky': 100,
+  'overlay': 200,
+);
