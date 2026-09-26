@@ -12,7 +12,13 @@ import { getSessionCookie } from "better-auth/cookies";
 export function proxy(request: NextRequest) {
   if (getSessionCookie(request)) return NextResponse.next();
 
+  // Remember where they were headed so signing in finishes the navigation they
+  // started, rather than dumping everyone on the dashboard.
   const url = new URL("/auth", request.nextUrl);
+  url.searchParams.set(
+    "next",
+    request.nextUrl.pathname + request.nextUrl.search,
+  );
   return NextResponse.redirect(url);
 }
 

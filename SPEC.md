@@ -705,7 +705,12 @@ ownerId
 
 for controller queries.
 
-Better Auth creates the indexes it needs for its own collections; the application must not manage them.
+Better Auth's MongoDB adapter creates only the indexes its schema **declares** — a field-level
+`unique: true`, such as the one on `user.email`, does not produce one. The indexes the auth
+collections need (`user.email` unique, `session.token` unique, `session.userId`, `account.userId`)
+are therefore declared through a plugin schema in `lib/auth.ts`, and Better Auth creates them
+itself. The application must never create them directly with `createIndex`: a hand-made index on
+the same keys under a different name makes the adapter's own call fail silently.
 
 ---
 

@@ -30,7 +30,14 @@ function messageFor(error: { code?: string; message?: string }) {
   );
 }
 
-export default function AuthForm({ initialMode }: { initialMode: Mode }) {
+export default function AuthForm({
+  initialMode,
+  nextPath,
+}: {
+  initialMode: Mode;
+  /** Already sanitised by the page -- never build this from the URL here. */
+  nextPath: string;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [name, setName] = useState("");
@@ -66,7 +73,7 @@ export default function AuthForm({ initialMode }: { initialMode: Mode }) {
 
     // Sign-up auto-signs-in (Better Auth default), so both paths land here with
     // a session cookie set. `refresh()` makes the server tree re-read it.
-    router.push("/controllers");
+    router.push(nextPath);
     router.refresh();
   }
 

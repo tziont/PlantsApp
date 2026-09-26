@@ -1,5 +1,24 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment
+
+Create `.env.local` with the following. Every value is server-side only — none
+may be prefixed `NEXT_PUBLIC_`.
+
+```bash
+# MongoDB connection string, including the database name. A standalone mongod
+# is fine — transactions are deliberately off (see src/lib/auth.ts).
+MONGODB_URI=
+
+# Better Auth. Generate the secret with `npx @better-auth/cli secret`
+# (at least 32 characters). BETTER_AUTH_URL is this app's own origin.
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+
+# OpenAI key for plant information. Not read yet — SPEC.md phase 5.
+AI_API_KEY=
+```
+
 ## Getting Started
 
 First, run the development server:
